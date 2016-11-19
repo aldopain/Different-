@@ -2,8 +2,11 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class Chess {
+	int mate = 0;
+	Figure whiteKing;
+	Figure blackKing;
 	int[] knights = {2, 7, 26, 31};
-	int[] bishops ={3, 6, 27, 30};
+	int[] bishops = {3, 6, 27, 30};
 	int[] queens = {4, 28};
 	int[] pawns = {9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24};
 	int[] rooks = {1, 8, 25, 32};
@@ -15,16 +18,16 @@ public class Chess {
 	ArrayList<Integer> errors = new ArrayList<Integer>();
 	ArrayList<Figure> fBlack = new ArrayList<Figure>();
 	ArrayList<Figure> fWhite = new ArrayList<Figure>();
-	/*int[][] desk = {{1, 2, 3, 4, 5, 6, 7, 8},
+	int[][] desk = {{1, 2, 3, 4, 5, 6, 7, 8},
 			{9, 10, 11, 12, 13, 14, 15, 16},
 			{0,0,0,0,0,0,0,0},
 			{0,0,0,0,0,0,0,0},
 			{0,0,0,0,0,0,0,0},
 			{0,0,0,0,0,0,0,0},
 			{17, 18, 19, 20, 21, 22, 23, 24},
-			{25, 26, 27, 28, 29, 30, 31, 32}};*/
+			{25, 26, 27, 28, 29, 30, 31, 32}};
 	
-	int[][] desk = 
+	/*int[][] desk = 
 			{{0,0,0,0,0,0,0,0},
 			{0,0,0,0,0,0,0,0},
 			{0,0,0,0,0,0,0,0},
@@ -33,6 +36,16 @@ public class Chess {
 			{0,0,0,0,0,0,0,0},
 			{0,0,0,0,0,0,0,0},
 			{0,0,0,5,0,0,0,0}};
+	
+	int[][] desk = {
+			{0,0,0,0,5,0,0,0},
+			{17, 18, 19, 20, 21, 22, 23, 24},
+			{0,0,0,0,0,0,0,0},
+			{0,0,0,0,0,0,0,0},
+			{9, 10, 11, 12, 13, 14, 15, 16},
+			{0,0,0,0,29,0,0,0},
+			{0,0,0,0,0,0,0,0},
+			{0,0,0,0,0,0,0,0}};*/
 			
 	
 ////////////////////////////////////
@@ -99,10 +112,42 @@ public class Chess {
 					if(this.checkPosition(h, w) == queens[j])
 						result.add(toCheck.get(i));
 			}
-			System.out.println("Всего: " + result.size());
+			//this.out();
+			Integer[] pawnsPositions = {-1, 1, -1, -1, 1, 1, 1, -1};
+			if(index/17 == 1){
+				for(int i = 0; i < 2; i++){
+					int h = pawnsPositions[i*2] + heigth;
+					int w = pawnsPositions[1*2+1] + weigth;
+					for(int j = 0; j < pawns.length; j++)
+						if(this.checkPosition(h, w) == pawns[j]){
+							Integer[] toAdd = {h, w};
+							result.add(toAdd);
+						}
+				}
+			}else{
+				for(int i = 2; i < 4; i++){
+					int h = pawnsPositions[i*2] + heigth;
+					int w = pawnsPositions[1*2+1] + weigth;
+					for(int j = 0; j < pawns.length; j++)
+						if(this.checkPosition(h, w) == pawns[j]){
+							Integer[] toAdd = {h, w};
+							result.add(toAdd);
+						}
+				}
+			}
+			
+			toCheck = new ArrayList<Integer[]>();
+			toCheck.addAll(this.getKingPossiblePositions());
+			for(int i = 0; i < toCheck.size(); i++){
+				int h = toCheck.get(i)[0];
+				int w = toCheck.get(i)[1];
+				for(int j = 0; j < kings.length; j++)
+					if(this.checkPosition(h, w) == kings[j])
+						result.add(toCheck.get(i));
+			}
+			/*System.out.println("Всего: " + result.size());
 			for(int i = 0; i < result.size(); i++)
-				System.out.println(result.get(i)[0] + 1 + ";" + (result.get(i)[1] + 1));
-			System.out.println("Всего: " + toCheck.size());
+				System.out.println(result.get(i)[0] + 1 + ";" + (result.get(i)[1] + 1));*/
 			return result;
 		}
 		
@@ -135,16 +180,19 @@ public class Chess {
 					Integer[] toAdd = {heigth + i , weigth + i};
 					result.add(toAdd);
 				}
+			f = 0;
 			for(int i = 1; f == 0 && heigth + i < 8 && weigth - i >= 0; i++)
 				if((f = this.checkPosition(heigth + i , weigth - i)) != -1){
 					Integer[] toAdd = {heigth + i , weigth - i};
 					result.add(toAdd);
 				}
+			f = 0;
 			for(int i = 1; f == 0 && heigth - i >= 0 && weigth + i < 8; i++)
 				if((f = this.checkPosition(heigth - i , weigth + i)) != -1){
 					Integer[] toAdd = {heigth - i , weigth + i};
 					result.add(toAdd);
 				}
+			f = 0;
 			for(int i = 1; f == 0 && heigth - i >= 0 && weigth - i >= 0; i++)
 				if((f = this.checkPosition(heigth - i , weigth - i)) != -1){
 					Integer[] toAdd = {heigth - i , weigth - i};
@@ -302,14 +350,14 @@ public class Chess {
 				for(; i < fBlack.size() && f != 1; i++){
 					if(fBlack.get(i).index == index){
 						f = 1;
-						fBlack.get(i).out();
+						//fBlack.get(i).out();
 					}
 				}
 			if(index > 16 && index < 33)
 				for(; i < fWhite.size() && f != 1; i++){
 					if(fWhite.get(i).index == index){
 						f = 1;
-						fWhite.get(i).out();
+						//fWhite.get(i).out();
 					}
 				}
 			//System.out.println("f = " + f);
@@ -326,51 +374,54 @@ public class Chess {
 				if(heigth%7 == 0)
 					return 1;
 			
-			int a, toDelete, checkToKing, buf;
+			int a, toDelete, checkToKing, tmp;
 			int oldHeigth = heigth, oldWeigth = weigth;
 			
 			Figure king;
-			if(index/16 == 0)
-				king = fBlack.get(0);
+			if(index/17 == 0)
+				king = blackKing;
 			else
-				king = fWhite.get(0);
+				king = whiteKing;
 			
 			ArrayList<Integer[]> positions = this.getPossiblePositions();
 			
 			do{
-				//System.out.println(name + " positions = " + positions.size());
-				//showDesk();
 				if(positions.size() == 0)
 					return 1;
+				
 				Integer[] newPos = positions.remove(rng(positions.size()));
 				int newHeigth = newPos[0];
 				int newWeigth = newPos[1];
 				desk[heigth][weigth] = 0;
+				
 				if((a = desk[newHeigth][newWeigth]) != 0)
 					toDelete = findByIndex(a);
 				else
 					toDelete = 100;
-				buf = desk[newHeigth][newWeigth];
+				
+				tmp = desk[newHeigth][newWeigth];
 				desk[newHeigth][newWeigth] = index;
 				heigth = newHeigth;
 				weigth = newWeigth;
+				
 				if((checkToKing = king.isFigureUnderAttack().size()) > 0){
-					//System.out.println("checkToKing.size > 0");
-					desk[newHeigth][newWeigth] = buf;
+					System.out.println(index + " checkToKing.size > 0");
+					System.out.println("checkToKing = " + checkToKing);
+					desk[newHeigth][newWeigth] = tmp;
 					heigth = oldHeigth;
 					weigth = oldWeigth;
 					desk[heigth][weigth] = index;
 				}
-				//System.out.println("checkToKing = " + checkToKing);
 			}while(checkToKing > 0);
 			
 			if(toDelete != 100)
-				if(index/16 == 0)
+				if(index/17 == 0)
 					fWhite.remove(toDelete);
 				else
 					fBlack.remove(toDelete);
-			if(name.equals("pawn") && (heigth%7 == 0))
-				makeQueenFromPawn();
+			System.out.println(index + " " + (heigth + 1) + ";" + (weigth + 1));
+			/*if(name.equals("pawn") && (heigth%7 == 0))
+				makeQueenFromPawn();*/
 			return 0;
 		}
 
@@ -385,159 +436,57 @@ public class Chess {
 	}
 /////////////////////////////
 	
+	void setDesk(){
+		int[][] nDesk = {{0,0,0,0,5,0,0,0},
+				{17, 18, 19, 20, 21, 22, 23, 24},
+				{0,0,0,0,0,0,0,0},
+				{0,0,0,0,0,0,0,0},
+				{9, 10, 11, 12, 13, 14, 15, 16},
+				{0,0,0,0,29,0,0,0},
+				{0,0,0,0,0,0,0,0},
+				{0,0,0,0,0,0,0,0}};
+		desk = nDesk;
+	}
+	
 	void rngMove(ArrayList<Figure> f){
 		ArrayList<Figure> buffer = new ArrayList<Figure>();
 		buffer.addAll(f);
 		int a = 1;
 		while(a == 1 && buffer.size() > 0){
-			Figure c = buffer.get(rng(buffer.size()));
+			Figure c = buffer.remove(rng(buffer.size()));
 			a = c.tryToMove();
-			buffer.remove(c);
+		}
+		if(buffer.size() == 0 && a == 1){
+			mate = 1;
+			if(f.get(0).isFigureUnderAttack().size() > 0)
+				System.out.println("MATE " + f.get(0).index);
+			else
+				System.out.println("PATE " + f.get(0).index);
 		}
 	}
 	
-	void createQueens(){
-		/*Figure a = new Figure();
-		a.name = "queen";
-		a.index = 4;
-		a.getPositionByStartIndex();
-		fBlack.add(a);*/
-		
-		Figure b = new Figure();
-		b.name = "queen";
-		b.index = 28;
-		b.getPositionByStartIndex();
-		fWhite.add(b);
-		
-		createdFigures += 2;
-	}
-	
-	void createBishops(){
-		/*Figure a = new Figure();
-		a.name = "bishop";
-		a.index = 3;
-		a.getPositionByStartIndex();
-		fBlack.add(a);
-		
-		Figure b = new Figure();
-		b.name = "bishop";
-		b.index = 6;
-		b.getPositionByStartIndex();
-		fBlack.add(b);*/
-		
-		Figure c = new Figure();
-		c.name = "bishop";
-		c.index = 27;
-		c.getPositionByStartIndex();
-		fWhite.add(c);
-		
-		/*Figure d = new Figure();
-		d.name = "bishop";
-		d.index = 30;
-		d.getPositionByStartIndex();
-		fWhite.add(d);*/
-		
-		createdFigures += 4;
-	}
-	
-	void createKings(){
-		Figure a = new Figure();
-		a.name = "king";
-		a.index = 5;
-		a.getPositionByStartIndex();
-		fBlack.add(a);
-		
-		/*Figure b = new Figure();
-		b.name = "king";
-		b.index = 29;
-		b.getPositionByStartIndex();
-		fWhite.add(b);
-		
-		createdFigures += 2;*/
-	}
-	
-	void createKnights(){
-		Figure a = new Figure();
-		a.name = "knight";
-		a.index = 2;
-		a.getPositionByStartIndex();
-		fBlack.add(a);
-		
-		Figure b = new Figure();
-		b.name = "knight";
-		b.index = 7;
-		b.getPositionByStartIndex();
-		fBlack.add(b);
-		
-		Figure c = new Figure();
-		c.name = "knight";
-		c.index = 26;
-		c.getPositionByStartIndex();
-		fWhite.add(c);
-		
-		Figure d = new Figure();
-		d.name = "knight";
-		d.index = 31;
-		d.getPositionByStartIndex();
-		fWhite.add(d);
-		
-		createdFigures += 4;
-	}
-	
-	void createRooks(){
-		Figure a = new Figure();
-		a.name = "rook";
-		a.index = 1;
-		a.getPositionByStartIndex();
-		fBlack.add(a);
-		
-		Figure b = new Figure();
-		b.name = "rook";
-		b.index = 8;
-		b.getPositionByStartIndex();
-		fBlack.add(b);
-		
-		Figure c = new Figure();
-		c.name = "rook";
-		c.index = 25;
-		c.getPositionByStartIndex();
-		fWhite.add(c);
-		
-		Figure d = new Figure();
-		d.name = "rook";
-		d.index = 32;
-		d.getPositionByStartIndex();
-		fWhite.add(d);
-		
-		createdFigures += 4;
-	}
-	
-	void createPawns(){
-		for(int i = 9; i < 17; i++){
+	void createFigures(String name, int[] fArr){
+		for(int i = 0; i < fArr.length; i++){
 			Figure a = new Figure();
-			a.name = "pawn";
-			a.index = i;
+			a.name = name;
+			a.index = fArr[i];
 			a.getPositionByStartIndex();
-			fBlack.add(a);
+			if(fArr[i]/17 == 0)
+				fBlack.add(a);
+			else
+				fWhite.add(a);
 		}
-		for(int i = 17; i < 25; i++){
-			Figure a = new Figure();
-			a.name = "pawn";
-			a.index = i;
-			a.getPositionByStartIndex();
-			fWhite.add(a);
-		}
-		
-		createdFigures += 16;
 	}
 	
-	void createFigures(){
-		createBishops();
-		createQueens();
-		createRooks();
-		createPawns();
-		createKnights();
-		createKings();
+	void createAllFigures(){
+		createFigures("king", kings);
+		createFigures("queen", queens);
+		createFigures("bishop", bishops);
+		createFigures("pawn", pawns);
+		createFigures("rook", rooks);
+		createFigures("knight", knights);
+		whiteKing = fWhite.get(0);
+		blackKing = fBlack.get(0);
 	}
 	
 	void showDesk(){
@@ -580,10 +529,9 @@ public class Chess {
 			for(int a: x)
 				if(a != 0)
 					c++;
-		if(c != fBlack.size() + fWhite.size() + 32 - createdFigures){
+		if(c != fBlack.size() + fWhite.size()){
 			System.out.println("c = " + c);
 			System.out.println("В массивах: " + (fBlack.size() + fWhite.size()));
-			System.out.println("Не было создано: " + (32 - createdFigures));
 			errorCount++;
 			errors.add(i);
 		}
@@ -600,10 +548,22 @@ public class Chess {
 	}
 	
 	void test(){
-		createFigures();
-		for(int i = 0; i < 100; i++){
+		createAllFigures();
+		for(int i = 0; i < 200 && mate == 0; i++){
 			rngMove(fWhite);
+			if(whiteKing.isFigureUnderAttack().size() > 0){
+				errorCount++;
+				errors.add(i + 1);
+			}
+			if(blackKing.isFigureUnderAttack().size() > 0)
+				System.out.println("CHECK!");
 			rngMove(fBlack);
+			if(blackKing.isFigureUnderAttack().size() > 0){
+				errorCount++;
+				errors.add(i + 1);
+			}
+			if(whiteKing.isFigureUnderAttack().size() > 0)
+				System.out.println("CHECK!");
 			System.out.println(i + 1 + ".");
 			//System.out.println(logs.get(i*2 + 1));
 			showDesk();
@@ -618,26 +578,15 @@ public class Chess {
 		for(Figure c: fBlack)
 			System.out.println(c.name + " " + c.index);
 	}
-
-	void createFiguresToTest(){
-		createKings();
-		createQueens();
-		createBishops();
-	}
 	
 	void ktest(){
-		createFiguresToTest();
-		ArrayList<Integer[]> a = fWhite.get(1).getBishopPossiblePositions();
-		for(Integer[] x: a)
-			System.out.println(x[0] + ";" + x[1]);
-		//rngMove(fBlack);
-		showDesk();
-		//fBlack.get(0).isFigureUnderAttack();
+		createAllFigures();
+		for(Figure a: fWhite)
+			a.out();
 	}
 	
 	public static void main(String[] args) {
 		Chess a = new Chess();
-		//System.out.println(a.createdFigures);
-		a.ktest();
+		a.test();
 	}
 }
